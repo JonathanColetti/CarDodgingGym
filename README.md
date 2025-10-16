@@ -1,7 +1,7 @@
 # Car game gym
 A reinforcement learning environment for car dodging using gymnasium, pygame, python
 
-[Gameplay](gameplay.gif)
+[Gameplay](./gameplay.gif)
 
 # How to run
 
