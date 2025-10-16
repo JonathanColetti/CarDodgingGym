@@ -1,6 +1,5 @@
 # Car game gym
-A reinforcement learning environment for car dodging using 
-
+A reinforcement learning environment for car dodging using gymnasium, pygame, python
 
 # How to run
 
