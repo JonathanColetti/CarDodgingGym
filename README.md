@@ -1,4 +1,4 @@
-# Car game gym ![https://github.com/JonathanColetti/CarDodgingGym](web app)
+# Car game gym [Web app](https://jonathancoletti.github.io/CarDodgingGym/)
 A reinforcement learning environment for car dodging using gymnasium, pygame, python, onnx runtime
 
 ![Reinforcement learning in action](./gameplay.gif)
