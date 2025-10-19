@@ -63,15 +63,16 @@ torch.onnx.export(
     onnxable_model,
     obs_tensor,
     onnx_path,
-    opset_version=17,
+    opset_version=18,
     input_names=["obs"],
     output_names=["action"],
     dynamic_axes={
         "obs": {0: "batch_size"},
         "action": {0: "batch_size"},
     },
+    external_data=False
 )
-logging.info("Export complete.", " Verifying the ONNX Model...")
+logging.info("Export complete. - Verifying onnx model...")
 
 
 onnx_model = onnx.load(onnx_path)
