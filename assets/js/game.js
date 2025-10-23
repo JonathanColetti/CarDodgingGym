@@ -5,10 +5,10 @@ class CarGame {
         this.SCREEN_HEIGHT = height;
 
         // consts from Python
-        this.REWARD_SUCCESSFUL_DODGE = 15.0;
-        this.REWARD_ALIVE_PER_STEP = 0.1;
-        this.PENALTY_LANE_CHANGE = 0;
-        this.PENALTY_CRASH = -100.0;
+        this.REWARD_SUCCESSFUL_DODGE = 5.0;
+        this.REWARD_ALIVE_PER_STEP = 0.5;
+        this.PENALTY_LANE_CHANGE = -0.05;
+        this.PENALTY_CRASH = -5.0;
 
         this.GRASS_COLOR = "rgb(60, 220, 0)";
         this.DARK_ROAD_COLOR = "rgb(50, 50, 50)";
