@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameActive) return;
 
         const obsFloat32 = new Float32Array(currentObs);
-        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 3]);
+        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 4]);
         const inputs = { 'obs': obsTensor };
 
         const results = await ortSession.run(inputs);
