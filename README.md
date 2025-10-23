@@ -1,7 +1,7 @@
 # Car game gym [Web app](https://jonathancoletti.github.io/CarDodgingGym/)
 A reinforcement learning environment for car dodging using gymnasium, pygame, python, onnx runtime
 
-![Reinforcement learning in action](./gameplay.gif)
+![Reinforcement learning in action](./docs/gameplay.gif)
 
 # How to run
 
@@ -21,16 +21,32 @@ pip install -e .
 ## Training
 
 ```
-python3 run.py train
+python3 car_game/run.py train
 ```
 
 ## Running
 
 ```
-python3 run.py play 
+python3 car_game/run.py play 
 ```
 
+## Exporting
 
+```
+python3 car_game/export_onnx.py
+```
+
+## Tensorboard
+
+```
+tensorboard --logdir car_game/logs
+```
+
+# Results
+
+![Loss Curve](docs/loss_curve.jpg)
+
+![Eval Results](docs/eval_results_tensorboard.jpg)
 
 
 # Write up stuff
@@ -87,6 +103,14 @@ pip install 'stable-baselines3[extra]'
 
 ```
 pip install onnx onnxruntime onnxscript
+```
+
+```
+zip -r -x "venv/*" -X ./car_game_gym.zip .
+```
+
+```
+python3 run.py train --n_envs 10 --timesteps 100000
 ```
 
 

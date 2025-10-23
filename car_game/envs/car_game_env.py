@@ -3,10 +3,10 @@ from gymnasium import spaces
 import pygame
 import numpy as np
 
-REWARD_SUCCESSFUL_DODGE = 15.0
-REWARD_ALIVE_PER_STEP = 0.1
-PENALTY_LANE_CHANGE = 0.0
-PENALTY_CRASH = -100.0
+REWARD_SUCCESSFUL_DODGE = 5.0
+REWARD_ALIVE_PER_STEP = 0.5
+PENALTY_LANE_CHANGE = -0.05
+PENALTY_CRASH = -5.0
 
 
 class CarGameEnv(gym.Env):
@@ -41,12 +41,13 @@ class CarGameEnv(gym.Env):
         self.right_lane = self.SCREEN_WIDTH / 2 + self.road_w / 4
         self.left_lane = self.SCREEN_WIDTH / 2 - self.road_w / 4
         self.initial_speed = 3
+        self.max_speed = 10000.0
 
         self.render_mode = render_mode
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, -0.5]), high=np.array([1, 1, 1.5]), dtype=np.float32
+            low=np.array([0, 0, -0.5, self.initial_speed]), high=np.array([1, 1, 1.5, self.max_speed]), dtype=np.float32
         )
 
         original_car = pygame.image.load("assets/cars/car.png")
@@ -72,7 +73,7 @@ class CarGameEnv(gym.Env):
         enemy_lane_obs = 0 if self.car2_loc.centerx == self.left_lane else 1
         enemy_y_norm = self.car2_loc.center[1] / self.SCREEN_HEIGHT
         return np.array(
-            [player_lane_obs, enemy_lane_obs, enemy_y_norm], dtype=np.float32
+            [player_lane_obs, enemy_lane_obs, enemy_y_norm, self.speed], dtype=np.float32
         )
 
     def _get_info(self):
