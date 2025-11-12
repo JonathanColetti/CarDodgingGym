@@ -71,7 +71,7 @@ class CarGame {
         const enemy_y_center = this.car2_loc.y + this.car2_loc.height / 2;
         const enemy_y_norm = enemy_y_center / this.SCREEN_HEIGHT;
 
-        return [player_lane_obs, enemy_lane_obs, enemy_y_norm, this.speed];
+        return [player_lane_obs, enemy_lane_obs, enemy_y_norm];
     }
 
     /*

@@ -8,23 +8,42 @@ document.addEventListener('DOMContentLoaded', () => {
     let ortSession;
     let gameActive = false;
     let currentObs;
+    let normalizer;
 
     /*
     */
     async function setupGame() {
         try {
-            // load the ONNX model
+            // Load the ONNX model
             ortSession = await ort.InferenceSession.create('./ppo_cargame.onnx');
+        
             
+            // Load VecNormalize statistics
+            const statsResponse = await fetch('./vecnormalize_stats.json');
+            if (!statsResponse.ok) {
+                throw new Error('Failed to load normalization stats. Run the stats export script first!');
+            }
+            const stats = await statsResponse.json();
+            normalizer = new ObservationNormalizer(stats);
+            
+            statusDisplay.textContent = 'Loading game assets...';
             await game.loadAssets();
-
+            
             startButton.disabled = false;
             startButton.textContent = 'Start Game';
+            statusDisplay.textContent = 'Ready to play!';
+            statusDisplay.className = 'success';
             
             currentObs = game.reset();
             game.render();
             scoreDisplay.textContent = 'Score: 0';
-
+            
+            console.log('Normalization stats loaded:', {
+                mean: normalizer.mean,
+                var: normalizer.var,
+                epsilon: normalizer.epsilon,
+                clip_obs: normalizer.clip_obs
+            });
         } catch (error) {
             console.error("Failed to load game:", error);
             startButton.textContent = 'Failed to Load';
@@ -50,10 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     */
     async function gameLoop() {
-        if (!gameActive) return;
-
-        const obsFloat32 = new Float32Array(currentObs);
-        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 4]);
+        if (!gameActive) {
+            console.error("game is not actice");
+            return;
+        }
+        if (!normalizer) {
+            console.error("normalizer is null");
+            return;
+        }
+        const normalizedObs = normalizer.normalize(currentObs);
+        const obsFloat32 = new Float32Array(normalizedObs);
+        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 3]);
         const inputs = { 'obs': obsTensor };
 
         const results = await ortSession.run(inputs);

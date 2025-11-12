@@ -2,6 +2,8 @@ import gymnasium as gym
 import os
 import argparse
 import logging
+import json
+
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import VecNormalize
@@ -17,6 +19,8 @@ def setup_logging():
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
+
+
 
 def train(args):
     logging.info("Starting training session...")
@@ -68,45 +72,74 @@ def train(args):
 
     logging.info(f"Saving final model to {model_path}")
     model.save(model_path)
-    logging.info("Training complete")
+    vec_stats_pickle_path = "vecnormalize_stats.pkl"
+    vec_env.save(vec_stats_pickle_path)
+    
+    logging.info("Training complete, exporting to ")
+    stats_path = "vecnormalize_stats.json" 
+    
+    stats = {
+        "mean": vec_env.obs_rms.mean.tolist(),
+        "var": vec_env.obs_rms.var.tolist(),
+        "epsilon": vec_env.epsilon,
+        "clip_obs": vec_env.clip_obs
+    }
+
+    with open(stats_path, 'w') as f:
+        json.dump(stats, f, indent=4)
+
 
 def play(args):
     model_path = os.path.join(MODELS_DIR, MODEL_FILENAME)
-    if not os.path.exists(model_path):
-        logging.error(f"Model not found at {model_path}. Train it first.")
+    stats_path = os.path.join(MODELS_DIR, "vecnormalize_stats.pkl")
+
+    if not os.path.exists(model_path) or not os.path.exists(stats_path):
+        logging.error(f"Model ({model_path}) or stats ({stats_path}) not found. Train it first.")
         return
 
-    logging.info(f"Loading model from {model_path}")
-    loaded_model = PPO.load(model_path)
-    eval_env = gym.make("CarGame-v0", render_mode="human")
+    logging.info(f"Loading model from {model_path} and stats from {stats_path}")
+
+    eval_env_vec = make_vec_env("CarGame-v0", n_envs=1, env_kwargs={"render_mode": "human"})
+
+    eval_env_vec = VecNormalize.load(stats_path, eval_env_vec)
+
+    eval_env_vec.training = False
+    eval_env_vec.norm_reward = False
+
+    loaded_model = PPO.load(model_path, env=eval_env_vec)
 
     for ep in range(args.episodes):
-        obs, info = eval_env.reset()
+        obs = eval_env_vec.reset()
         done = False
         episode_reward = 0
+        
         while not done:
             action, _states = loaded_model.predict(obs, deterministic=True)
-            obs, reward, terminated, truncated, info = eval_env.step(action)
-            episode_reward += reward
-            done = terminated or truncated
-        logging.info(f"Episode {ep + 1}: Score={info['score']}, Reward={episode_reward:.2f}")
-    eval_env.close()
+            
+            obs, reward, done, info = eval_env_vec.step(action)
+            
+            episode_reward += reward[0]
+
+            if done[0]:
+                logging.info(f"Episode {ep + 1}: Score={info[0]['score']}, Reward={episode_reward:.2f}")
+
+    eval_env_vec.close()
     logging.info("Playback complete")
 
 def main():
     parser = argparse.ArgumentParser(description="Train or Play a PPO agent for CarGame")
     parser.add_argument("mode", choices=["train", "play"], help="Mode to run: train or play")
-    parser.add_argument("--timesteps", type=int, default=1000000)
-    parser.add_argument("--n_envs", type=int, default=8)
+    parser.add_argument("--timesteps", type=int, default=1_000_000)
+    parser.add_argument("--n_envs", type=int, default=2048)
     parser.add_argument("--eval_freq", type=int, default=20000)
     parser.add_argument("--episodes", type=int, default=5)
     parser.add_argument("--n_steps", type=int, default=512)
-    parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--n_epochs", type=int, default=15)
+    parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument("--n_epochs", type=int, default=10)
     parser.add_argument("--gamma", type=float, default=0.99)
-    parser.add_argument("--learning_rate", type=float, default=0.0001)
-    parser.add_argument("--clip_range_vf", type=float, default=0.2)
-    parser.add_argument("--ent_coef", type=float, default=0.02)
+    parser.add_argument("--learning_rate", type=float, default=0.0003)
+    parser.add_argument("--clip_range_vf", type=float, default=None)
+    parser.add_argument("--ent_coef", type=float, default=0.01)
     parser.add_argument("--vf_coef", type=float, default=0.5)
     parser.add_argument("--gae_lambda", type=float, default=0.95)
     parser.add_argument("--clip_range", type=float, default=0.2)
@@ -121,3 +154,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

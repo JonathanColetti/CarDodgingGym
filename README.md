@@ -19,9 +19,15 @@ pip install -e .
 ```
 
 ## Training
-
+NOTE: make sure to not run on a CUDA device as it is slower
 ```
 python3 car_game/run.py train
+```
+
+## What I used to train
+
+```
+export CUDA_VISIBLE_DEVICES= && python car_game/run.py train --timesteps 4500000     --n_envs 64     --n_steps 2048     --learning_rate 0.00003     --n_epochs 4     --ent_coef 0.001
 ```
 
 ## Running
@@ -41,6 +47,13 @@ python3 car_game/export_onnx.py
 ```
 tensorboard --logdir car_game/logs
 ```
+
+# Zipping 4 training 
+
+```
+zip -r project.zip . -x "*.zip" "venv/*" "venv_*/*"
+```
+
 
 # Results
 

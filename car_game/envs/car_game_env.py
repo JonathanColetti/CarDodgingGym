@@ -2,11 +2,16 @@ import gymnasium as gym
 from gymnasium import spaces
 import pygame
 import numpy as np
+import os
 
 REWARD_SUCCESSFUL_DODGE = 5.0
-REWARD_ALIVE_PER_STEP = 0.5
+REWARD_ALIVE_PER_STEP = 0.01
 PENALTY_LANE_CHANGE = -0.05
 PENALTY_CRASH = -5.0
+
+# run in headless mode such that no warning appear
+os.environ["SDL_VIDEODRIVER"] = "dummy" 
+os.environ['SDL_AUDIODRIVER'] = "dummy"
 
 
 class CarGameEnv(gym.Env):
@@ -25,6 +30,7 @@ class CarGameEnv(gym.Env):
         super().__init__()
 
         pygame.init()
+        
         try:
             self.score_font = pygame.font.Font("assets/fonts/joystix monospace.otf", 30)
         except FileNotFoundError:
@@ -47,7 +53,7 @@ class CarGameEnv(gym.Env):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, -0.5, self.initial_speed]), high=np.array([1, 1, 1.5, self.max_speed]), dtype=np.float32
+            low=np.array([0, 0, -0.5]), high=np.array([1, 1, 1.5]), dtype=np.float32
         )
 
         original_car = pygame.image.load("assets/cars/car.png")
@@ -73,7 +79,7 @@ class CarGameEnv(gym.Env):
         enemy_lane_obs = 0 if self.car2_loc.centerx == self.left_lane else 1
         enemy_y_norm = self.car2_loc.center[1] / self.SCREEN_HEIGHT
         return np.array(
-            [player_lane_obs, enemy_lane_obs, enemy_y_norm, self.speed], dtype=np.float32
+            [player_lane_obs, enemy_lane_obs, enemy_y_norm], dtype=np.float32
         )
 
     def _get_info(self):
