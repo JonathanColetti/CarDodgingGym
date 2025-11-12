@@ -1,12 +1,12 @@
+// Add this class definition somewhere in your script
 class ObservationNormalizer {
     constructor(stats) {
-        // Check if stats are nested
+        // Check if stats are nested (e.g., from a converted .pkl)
         if (stats.obs_rms) {
             this.mean = new Float32Array(stats.obs_rms.mean);
             this.var = new Float32Array(stats.obs_rms.var);
         }
-
-        // Check if stats are flat
+        // Check if stats are flat (e.g., from a custom export)
         else if (stats.mean) {
             this.mean = new Float32Array(stats.mean);
             this.var = new Float32Array(stats.var);

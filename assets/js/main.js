@@ -26,13 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats = await statsResponse.json();
             normalizer = new ObservationNormalizer(stats);
             
-            statusDisplay.textContent = 'Loading game assets...';
             await game.loadAssets();
-            
             startButton.disabled = false;
             startButton.textContent = 'Start Game';
-            statusDisplay.textContent = 'Ready to play!';
-            statusDisplay.className = 'success';
             
             currentObs = game.reset();
             game.render();
@@ -79,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const normalizedObs = normalizer.normalize(currentObs);
         const obsFloat32 = new Float32Array(normalizedObs);
-        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 3]);
+        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 4]);
         const inputs = { 'obs': obsTensor };
 
         const results = await ortSession.run(inputs);
