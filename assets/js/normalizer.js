@@ -6,6 +6,7 @@ class ObservationNormalizer {
             this.var = new Float32Array(stats.obs_rms.var);
         }
 
+        // Check if stats are flat
         else if (stats.mean) {
             this.mean = new Float32Array(stats.mean);
             this.var = new Float32Array(stats.var);

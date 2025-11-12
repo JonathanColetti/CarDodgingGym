@@ -9,7 +9,7 @@ REWARD_ALIVE_PER_STEP = 0.01
 PENALTY_LANE_CHANGE = -0.05
 PENALTY_CRASH = -5.0
 
-# run in headless mode such that no warning appear
+# run in headless mode such that no warning appear with sound cards
 os.environ["SDL_VIDEODRIVER"] = "dummy" 
 os.environ['SDL_AUDIODRIVER'] = "dummy"
 
