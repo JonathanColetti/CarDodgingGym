@@ -54,12 +54,8 @@ tensorboard --logdir car_game/logs
 zip -r project.zip . -x "*.zip" "venv/*" "venv_*/*"
 ```
 
-<<<<<<< HEAD
-=======
 
->>>>>>> fe0c014 (Train 4M timestep, add tensorboard data and update README)
 # Results
-TODO: I have not finished a proper train with good results
 
 ![Loss Curve](docs/loss_curve.jpg)
 
