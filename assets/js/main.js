@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const normalizedObs = normalizer.normalize(currentObs);
         const obsFloat32 = new Float32Array(normalizedObs);
-        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 4]);
+        const obsTensor = new ort.Tensor('float32', obsFloat32, [1, 3]);
         const inputs = { 'obs': obsTensor };
 
         const results = await ortSession.run(inputs);
